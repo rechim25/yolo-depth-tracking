@@ -193,10 +193,13 @@ class STrack(BaseTrack):
         """Returns the bounding box in top-left-width-height format from the current state estimate."""
         if self.mean is None:
             return self._tlwh.copy()
-        ret = self.mean[:4].copy()
-        ret[2] *= ret[4]  # Adjusted for aspect ratio in the state vector
-        ret[:2] -= ret[2:] / 2
-        return ret
+        ret = self.mean[:5].copy()  # Include depth
+        x, y, z, a, h = ret
+        w = a * h  # Width is aspect ratio times height
+        tl_x = x - w / 2
+        tl_y = y - h / 2
+        return np.array([tl_x, tl_y, w, h])
+
 
     @property
     def xyxy(self):
@@ -246,7 +249,7 @@ class STrack(BaseTrack):
     def result(self):
         """Returns the current tracking results in the appropriate bounding box format."""
         coords = self.xyxy if self.angle is None else self.xywha
-        return coords.tolist() + [self.track_id, self.score, self.cls, self.idx, self.depth]
+        return coords.tolist() + [self.track_id, self.score, self.cls, self.idx]
 
     def __repr__(self):
         """Returns a string representation of the STrack object including start frame, end frame, and track ID."""
@@ -366,19 +369,19 @@ class BYTETrackerDepth:
         depth_values = []
         for bbox in bboxes:
             x_center, y_center, w, h, idx = bbox  # assuming bbox has 5 elements
-            x1 = int(x_center - w / 2)
-            y1 = int(y_center - h / 2)
-            x2 = int(x_center + w / 2)
-            y2 = int(y_center + h / 2)
+            x1 = int(x_center - w / 4)
+            y1 = int(y_center - h / 4)
+            x2 = int(x_center + w / 4)
+            y2 = int(y_center + h / 4)
 
             x1 = max(0, x1)
             y1 = max(0, y1)
             x2 = min(depth_map.shape[1] - 1, x2)
             y2 = min(depth_map.shape[0] - 1, y2)
 
-            # depth_values_in_bbox = depth_map[y1:y2, x1:x2]
-            # avg_depth = np.mean(depth_values_in_bbox)
-            avg_depth = depth_map[y_center, x_center]
+            depth_values_in_bbox = depth_map[y1:y2, x1:x2]
+            avg_depth = np.mean(depth_values_in_bbox)
+            # avg_depth = depth_map[int(y_center), int(x_center)]
             depth_values.append(avg_depth)
 
         depth_values = np.array(depth_values)
@@ -509,7 +512,11 @@ class BYTETrackerDepth:
 
         # Combine distances
         dists = iou_dists + self.lambda_depth * depth_diffs_norm
-
+        print(f"iou_dists: {iou_dists}")
+        print(f"lambda: {self.lambda_depth}")
+        print(f"depth_diffs_norm: {depth_diffs_norm}")
+        print(f"max_depth_diff: {max_depth_diff}")
+        print(f"track_depths: {track_depths}")
         return dists
 
     def multi_predict(self, tracks):

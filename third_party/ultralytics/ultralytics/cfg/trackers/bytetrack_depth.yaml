@@ -10,7 +10,7 @@ match_thresh: 0.8 # threshold for matching tracks
 fuse_score: True # Whether to fuse confidence scores with the iou distances before matching
 # min_box_area: 10  # threshold for min box areas(for tracker evaluation, not used for now)
 
-lambda_depth: 1.0
+lambda_depth: 0.2
 
 encoder: vits
 ckpt_path: /home/rechim/cargotrack/checkpoints/depth_anything_v2_vits.pth
