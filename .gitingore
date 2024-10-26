@@ -1,6 +1,7 @@
 # Output folders
 runs/
 vis_video_depth/
+checkpoints/
 
 # Data folders
 dataset/
