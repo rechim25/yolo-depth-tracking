@@ -59,10 +59,16 @@ Challenge: Using a provided dataset of videos from real-world waste collection o
 - We had issues with setting up ByteTrack_ReID, dependencies were not compatible with each other and after taking in consideration the time left for the challenge we decided to abandon this approach.
 
 ## 4. SAM (Segment Anything Model)
-### Approach: 
-- Approach was to use the SAM model as it is a model that can be used for real-time object detection and it could handle bins that leave the scene and come back.
-### Challenges: 
-- The SAM model worked partially, it was able to detect the bins and track them but it lost track of the main object and tagged everything as bins.
+## Approach
+- Combined YOLOv8 for precise initial detection with SAM-Track for tracking and segmenting waste bins.
+- Leveraged SAM-Track’s ability to maintain the object's shape and movement consistently within the frame.
+- Aimed to enhance object tracking by separating detection and tracking tasks between the two models.
+## Challenges
+- SAM-Track struggled to maintain object ID when bins exited and re-entered the camera view.
+- Unexpectedly, the model occasionally detected dozens of false objects within a single frame, adding noise.
+- These issues impacted tracking stability, reducing the overall reliability of our detection-tracking system.
+## Next Iteration
+- Due to the above challenges, we are now focused on identifying alternative models with improved ID consistency and robust object tracking in dynamic settings.
 ## SAM Example
 ![SAM Example](images/sam1.gif)
 
