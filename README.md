@@ -64,6 +64,21 @@ Challenge: Using a provided dataset of videos from real-world waste collection o
 ### Challenges: 
 - The SAM model worked partially, it was able to detect the bins and track them but it lost track of the main object and tagged everything as bins.
 
+## 5. Depth-Anything-V2 with Depth-Consistency Tracking
+
+### Approach:
+
+- We used the Depth-Anything-V2 model to estimate depth from single frames, aiming to enforce depth-consistency across time. Depth information was integrated as a tracking heuristic, alongside the x and y coordinates of each bounding box in Kalman Filtering.
+- This approach allowed us to address the problem of bins losing their IDs when coming very close to the camera, as depth information helped maintain consistent identification.
+
+### Challenges:
+
+- While depth integration reduced ID loss when bins approached the camera, it introduced some instability in other scenarios, leading to ID mixing among dumpsters.
+- Given more time, we would have refined this approach by adding the depth (z-component) into the Kalman Filter to achieve smoother and more accurate tracking results.
+
+![Bin Detection Example](images/depth.gif)
+
+
 # The Solution
 
 
