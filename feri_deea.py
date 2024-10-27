@@ -230,6 +230,7 @@ def main():
             video_files.append(os.path.abspath(
                 os.path.join(DATASET_DIR, item)))
     print(video_files)
+    video_files= ["dataset/240517_060043_060053.mp4"]
 
     # Inițializăm modelul și tracker-ul
     model = YOLO(YOLO_MODEL_PATH)
@@ -252,6 +253,10 @@ def main():
         # Deschidem fișierul de log
         log_file = os.path.join(output_dir_for_video, f"{os.path.basename(video_file)}.txt")
 
+
+        tracking_data_dict = defaultdict(lambda: {"first_seen": None, "last_seen": None})
+        capture = cv2.VideoCapture(video_file)
+
         with open(log_file, 'w') as log:
             print("Începem procesarea video...")
 
@@ -265,6 +270,12 @@ def main():
                 tracker.current_frame_time = time.time()
                 tracker.clean_old_tracks()
                 tracker.reset_frame()
+
+                capture.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+                frame_timestamp_ms = capture.get(cv2.CAP_PROP_POS_MSEC)
+                minutes = int(frame_timestamp_ms // 60000)
+                seconds = (frame_timestamp_ms % 60000) / 1000
+                timestamp_str = f"{minutes:02}:{seconds:05.2f}"
 
                 if result.orig_img is None:
                     print(
@@ -306,6 +317,10 @@ def main():
                         current_boxes.append(current_box)
                         current_labels.append(stable_id)
 
+                        if tracking_data_dict[stable_id]["first_seen"] is None:
+                            tracking_data_dict[stable_id]["first_seen"] = timestamp_str
+                        tracking_data_dict[stable_id]["last_seen"] = timestamp_str
+
                         log_message = f"Frame {frame_idx}: Stable ID {stable_id}"
                         print(log_message)
                         log.write(log_message + '\n')
@@ -327,6 +342,15 @@ def main():
             if video_writer is not None:
                 video_writer.release()
 
+            tracking_data = [
+                ("Dumpster 1100 L", stable_id, data["first_seen"], True)
+                for stable_id, data in tracking_data_dict.items()
+            ] + [
+                ("Dumpster 1100 L", stable_id, data["last_seen"], False)
+                for stable_id, data in tracking_data_dict.items()
+            ]
+            save_tracking_data_to_excel(tracking_data)
+
             processing_time = time.time() - start_processing_time
             print("\nStatistici de procesare:")
             print(f"Timp total de procesare: {processing_time:.2f} secunde")
@@ -337,7 +361,34 @@ def main():
             print(f"Video rezultat salvat în: {output_video}")
             print(f"Rezultatele au fost salvate în: {output_dir_for_video}")
             print(f"Log-ul de tracking a fost salvat în: {log_file}")
+        capture.release()
 
+import pandas as pd
+from datetime import datetime
+
+def save_tracking_data_to_excel(tracking_data, excel_filename="tracked_objects.xlsx"):
+    # Initialize a dictionary to store data for each tracked instance
+    track_info = []
+    object_presence = {}  # Temporary store to keep start time for each track ID
+    for obj_type, track_id, timestamp, is_present in tracking_data:
+        if is_present:
+            # Record start time if object appears
+            object_presence[track_id] = timestamp
+        else:
+            # Record end time if object disappears
+            if track_id in object_presence:
+                start_time = object_presence.pop(track_id)
+                track_info.append({
+                    "Object Type": obj_type,
+                    "Track ID": track_id,
+                    "Start Time": start_time,
+                    "End Time": timestamp
+                })
+    # Convert tracking information to a DataFrame
+    df = pd.DataFrame(track_info)
+    # Save to Excel file
+    df.to_excel(excel_filename, index=False)
+    print(f"Tracking data has been saved to {excel_filename}")
 
 if __name__ == "__main__":
     main()
