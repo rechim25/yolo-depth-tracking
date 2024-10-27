@@ -66,10 +66,42 @@ Challenge: Using a provided dataset of videos from real-world waste collection o
 
 # The Solution
 
+
+To overcome the challenges faced in previous approaches, we implemented a refined solution with the following steps, supported by a pretrained model received as part of the challenge resources:
+
+## 1. Dataset Creation for Fine-Tuning
+
+**Objective:** Collect and curate a specialized dataset focused on waste bins to improve detection accuracy.
+
+**Process:** Extracted frames from the provided videos, manually labeled the waste bins, and expanded the dataset with varied scenarios to cover diverse environmental conditions.
+
+**Outcome:** This custom dataset allowed for targeted training, helping the model to distinguish bins even when they were attached to or obstructed by the collection truck.
+
 ## Bin Detection Examples
 ![Bin Detection Example](images/image1.png)
 ![Bin Detection Example](images/image4.png)
 ![Bin Detection Example](images/image5.png)
+
+
+
+## 2. Model Selection and Fine-Tuning with Ultralytics YOLO
+
+**Objective:** Leverage YOLO’s robust object detection capabilities, with further customization through Ultralytics for better bin detection.
+
+**Process:** Using YOLO’s fine-tuning capabilities on the new dataset, the model was optimized to prioritize bin identification and tracking, reducing false detections.
+
+**Outcome:** Fine-tuning with Ultralytics improved detection speed and accuracy, making the model reliable in real-time applications within the waste collection context.
+
+## 3. Enhanced Heuristics for Improved Tracking and Counting
+
+**Objective:** Develop heuristics to handle edge cases, such as bins being momentarily obscured or leaving and re-entering the frame.
+
+**Process:** Implemented heuristics that incorporate spatial and temporal information to maintain bin count accuracy, even as bins interact with the collection vehicle.
+
+**Outcome:** Enhanced heuristics significantly improved tracking continuity, reduced re-identification issues, and achieved reliable bin counting throughout each video sequence.
+
 ## Tracking in Progress
 ![Tracking in Progress](images/image2.png)
 ![Tracking in Progress](images/image3.png)
+
+This structured solution approach helped us achieve a more stable and accurate detection and tracking of waste bins, effectively meeting the project’s objectives for smart waste management.
