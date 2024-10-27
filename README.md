@@ -13,7 +13,7 @@ pip install -e .
 
 # Run
 
-Run the `depth_tracking.py` script.
+Run the `feri_deea.py` script.
 
 <br><hr><br>
 
