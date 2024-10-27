@@ -230,7 +230,7 @@ def main():
             video_files.append(os.path.abspath(
                 os.path.join(DATASET_DIR, item)))
     print(video_files)
-    video_files= ["dataset/240517_060043_060053.mp4"]
+    video_files = ["dataset/240517_065436_065446.mp4"]
 
     # Inițializăm modelul și tracker-ul
     model = YOLO(YOLO_MODEL_PATH)
@@ -238,7 +238,7 @@ def main():
     # Creăm directorul de ieșire
     output_directory = 'results-feri_deea/'
     if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+        os.makedirs(output_directory, exist_ok=True)
 
     for video_file in video_files:
         tracker = EnhancedBinTracker(memory_duration=4)
