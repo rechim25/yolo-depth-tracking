@@ -63,6 +63,8 @@ Challenge: Using a provided dataset of videos from real-world waste collection o
 - Approach was to use the SAM model as it is a model that can be used for real-time object detection and it could handle bins that leave the scene and come back.
 ### Challenges: 
 - The SAM model worked partially, it was able to detect the bins and track them but it lost track of the main object and tagged everything as bins.
+## SAM Example
+![SAM Example](images/sam1.gif)
 
 # The Solution
 
